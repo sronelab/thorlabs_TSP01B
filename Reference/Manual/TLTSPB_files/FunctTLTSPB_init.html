@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" href="htmlhelp.css" type="text/css">
+    <title>TLTSPB_init</title>
+  </head>
+  <body>
+    <h1>TLTSPB_init</h1>
+    <p class="syntax">
+      ViStatus TLTSPB_init (ViRsrc resourceName, ViBoolean IDQuery,
+                      ViBoolean resetDevice, ViPSession instrumentHandle);
+    </p>
+    <h2 class="purpose">Purpose</h2>
+    <p class="body">
+    This function initializes the instrument driver session and performs the following initialization actions:
+    <br/>
+    (1) Opens a session to the Default Resource Manager resource and a session to the specified device using the Resource Name&nbsp;&nbsp;specified.
+    <br/>
+    (2) Performs an identification query on the instrument.
+    <br/>
+    (3) Resets the instrument to a known state.
+    <br/>
+    (4) Sends initialization commands to the instrument.
+    <br/>
+    (5) Returns an instrument handle which is used to distinguish between different sessions of this instrument driver.
+    <br/>
+    Note:
+    <br/>
+    Each time this function is invoked a unique session is opened.&nbsp;&nbsp;
+    </p>
+    <h2>Parameters</h2>
+    <table class="borderless" summary="Parameter help">
+      <tr>
+        <td valign="top"><em class="label">Input</em></td>
+      </tr>
+      <tr>
+        <td class="tablehead">Name</td>
+        <td class="tablehead">Type</td>
+        <td class="tablehead">Description</td>
+      </tr>
+      <tr>
+        <td class="paramName">resourceName</td>
+        <td class="paramDataType">ViRsrc</td>
+        <td>
+    This parameter specifies the device (resource) with which to establish a communication session. The syntax for the Instrument Descriptor is shown below. Optional segments are shown in square brackets ([]). Required segments that must be filled in are denoted by angle brackets (&lt;&gt;).
+    <br/>
+    USB[board]::0x1313::product id
+    <br/>
+    ::serial number[::interface number][::INSTR]
+    <br/>
+    Remote Access&nbsp;&nbsp;&nbsp;visa://hostname[:port]/resource
+    <br/>
+    The default values for optional parameters are shown below.
+    <br/>
+    Optional Segment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Default Value
+    <br/>
+    ---------------------------------------
+    <br/>
+    board&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+    <br/>
+    USB interface number&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+    <br/>
+    The product id codes for supported instruments are shown below.
+    <br/>
+    Product ID&nbsp;&nbsp;&nbsp;Instrument Type
+    <br/>
+    -------------------------------------------------
+    <br/>
+    0x80F0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TSP01 with DFU interface enabled
+    <br/>
+    0x80F8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TSP01 without DFU interface enabled
+    <br/>
+    Example Resource Strings:
+    <br/>
+    --------------------------------------------------------------
+    <br/>
+    USB::0x1313::0x80F8::M12345678::INSTR
+    <br/>
+    TSP01 with a serial number of
+    <br/>
+    M12345678.
+    <br/>
+    visa://1.2.3.4/USB::0x1313::0x80F8::M23456789::INSTR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <br/>
+    Remote access to the TSP01 with a serial
+    <br/>
+    number of M23456789 at the specified IP
+    <br/>
+    address.
+    <br/>
+    visa://hostname/USB::0x1313::0x80F8::M34567890::INSTR
+    <br/>
+    Remote access to the TSP01 with a
+    <br/>
+    serial number of M23456789 on the
+    <br/>
+    specified host.
+    <br/>
+    Note: You should use TLTSP_getDeviceResourceString() to get the Resource Name for your device.
+    <br/>
+    But you may use VISA &lt;Find Resources&gt; with an appropriate seach pattern to get the Resource Name for your device too.
+    <br/>
+    For TSPxx devices use: &quot;USB?*::0x1313::0x80F?::?*::INSTR&quot;
+        </td>
+      </tr>
+      <tr>
+        <td class="paramName">IDQuery</td>
+        <td class="paramDataType">ViBoolean</td>
+        <td>
+    This parameter specifies whether an identification query is performed during the initialization process.
+    <br/>
+    VI_OFF (0): Skip query.
+    <br/>
+    VI_ON&nbsp;&nbsp;(1): Do query (default).
+        </td>
+      </tr>
+      <tr>
+        <td class="paramName">resetDevice</td>
+        <td class="paramDataType">ViBoolean</td>
+        <td>
+    This parameter specifies whether the instrument is reset during the initialization process.
+    <br/>
+    Do only use this option if the previous parameter values are unknown or invalid. Never reset a device to set the equal parameter values after initialization again. Every device reset will write to the TSP01B internal EEPROM. The lifetime of this EEPROM is limited.
+    <br/>
+    VI_OFF (0) - no reset
+    <br/>
+    VI_ON&nbsp;&nbsp;(1) - instrument is reset (default)
+        </td>
+      </tr>
+      <tr>
+        <td valign="top"><em class="label">Output</em></td>
+      </tr>
+      <tr>
+        <td class="tablehead">Name</td>
+        <td class="tablehead">Type</td>
+        <td class="tablehead">Description</td>
+      </tr>
+      <tr>
+        <td class="paramName">instrumentHandle</td>
+        <td class="paramDataType">ViSession (passed by reference)</td>
+        <td>
+    This parameter returns an instrument handle that is used in all subsequent calls to distinguish between different sessions of this instrument driver.
+        </td>
+      </tr>
+    </table>
+    <h2>Return Value</h2>
+    <table class="borderless" summary="Return value help">
+      <tr>
+        <td class="tablehead">Name</td>
+        <td class="tablehead">Type</td>
+        <td class="tablehead">Description</td>
+      </tr>
+      <tr>
+        <td class="paramName">status</td>
+        <td class="paramDataType">ViStatus</td>
+        <td>
+    This is the error code returned by the function call. For error codes and descriptions see &lt;Error Message&gt;.
+        </td>
+      </tr>
+    </table>
+    <h2>References</h2>
+    <p class="body">
+      <a href="Thorlabs%20TSP01B%20Instrument%20Driver.html">Thorlabs TSP01B Instrument Driver</a><br/>
+      <a href="Alphabetical%20Function%20Index.html">Alphabetical Function Index</a><br/>
+      <a href="Hierarchical%20Function%20Index.html">Hierarchical Function Index</a><br/>
+    </p>
+  </body>
+</html>
