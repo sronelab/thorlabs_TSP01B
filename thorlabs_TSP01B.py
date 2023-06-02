@@ -1,5 +1,6 @@
 import os
 import ctypes as C
+import time
 
 class Data_Logger:
     '''
@@ -61,7 +62,7 @@ class Data_Logger:
                 self.name, device, in_use.value))
         return model, serial_number, manufacturer, in_use
 
-    def get_humidity(self, device=0):
+    def get_humidity(self, channel_name='humidity', device=0):
         assert device in self.device_number_to_handle
         device_handle = self.device_number_to_handle[device]
         if self.verbose:
@@ -174,22 +175,37 @@ dll.close.argtypes = [
     C.c_uint32]                 # instrumentHandle
 dll.restype = check_error
 
+
+
+
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
+import db_info
+
+
+"""Main loop"""
 if __name__ == '__main__':
-    logger = Data_Logger(verbose=True)
-##    logger._reset()
+    channels = ['humidity', 'Main', 'TH1', 'TH2']
+    try:
+        while True:
+            try:
+                values = []
+                logger = Data_Logger(verbose=True)
+                values.append(logger.get_humidity())
+                values.append(logger.get_temperature('Main'))
+                values.append(logger.get_temperature('TH1'))
+                values.append(logger.get_temperature('TH2'))
+                logger.close()
 
-    # single device:
-    for i in range(3):
-        logger.get_humidity()
-        logger.get_temperature('Main')
-        logger.get_temperature('TH1')
-##        logger.get_temperature('TH2')
-    logger.close()
-
-##    # 2 (or more) devices:
-##    num_devices = 2
-##    logger = Data_Logger(devices=num_devices, verbose=True)
-##    for device in range(num_devices):
-##        logger.get_humidity(device)
-##        logger.get_temperature('Main', device)
-##    logger.close()
+                # Send to the db
+                with InfluxDBClient(url=db_info.url, token=db_info.token, org=db_info.org, debug=False) as client:
+                    write_api = client.write_api(write_options=SYNCHRONOUS)
+                    for ii in range(len(channels)):
+                        write_api.write(db_info.bucket, db_info.org, "TSP01,Channel={} Value={}".format(channels[ii], values[ii]))
+                    client.close()
+            except:
+                logger._reset()
+                print("logger has an error. resetting...")
+            time.sleep(30)
+    except KeyboardInterrupt:
+        pass 
