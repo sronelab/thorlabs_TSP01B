@@ -187,15 +187,14 @@ import db_info
 if __name__ == '__main__':
     channels = ['humidity', 'Main', 'TH1', 'TH2']
     try:
+        logger = Data_Logger(verbose=True)
         while True:
             try:
                 values = []
-                logger = Data_Logger(verbose=True)
                 values.append(logger.get_humidity())
                 values.append(logger.get_temperature('Main'))
                 values.append(logger.get_temperature('TH1'))
                 values.append(logger.get_temperature('TH2'))
-                logger.close()
 
                 # Send to the db
                 with InfluxDBClient(url=db_info.url, token=db_info.token, org=db_info.org, debug=False) as client:
@@ -208,4 +207,4 @@ if __name__ == '__main__':
                 print("logger has an error. resetting...")
             time.sleep(30)
     except KeyboardInterrupt:
-        pass 
+        logger.close()
